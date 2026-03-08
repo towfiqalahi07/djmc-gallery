@@ -3,19 +3,27 @@ import { StudentCard } from './components/StudentCard';
 import { createServiceClient } from '@/lib/supabase';
 import { Student } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
-  const supabase = createServiceClient();
-  const { data, error } = await supabase
-    .from('students')
-    .select('*')
-    .eq('status', 'approved')
-    .order('full_name', { ascending: true });
+  let students: Student[] = [];
 
-  if (error) {
-    throw new Error(error.message);
+  try {
+    const supabase = createServiceClient();
+    const { data, error } = await supabase
+      .from('students')
+      .select('*')
+      .eq('status', 'approved')
+      .order('full_name', { ascending: true });
+
+    if (error) {
+      console.error('Failed to load students for homepage:', error.message);
+    } else {
+      students = (data ?? []) as Student[];
+    }
+  } catch (error) {
+    console.error('Homepage data fetch failed:', error);
   }
-
-  const students = (data ?? []) as Student[];
 
   return (
     <main>
