@@ -79,3 +79,8 @@ It sends OTP using a Bengali-friendly template:
 3. Add environment variables in Vercel Project Settings.
 4. Deploy.
 
+
+## Vercel configuration
+
+This repository includes `vercel.json` to force Next.js framework detection and use `.next` as build output.
+
