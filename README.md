@@ -68,9 +68,11 @@ This project integrates the URL-style API shown in your screenshot using query p
 - `senderid`
 - `message`
 
-It sends OTP using a Bengali-friendly template:
+Phone input can be `01XXXXXXXXX` or `8801XXXXXXXXX`. The backend normalizes to `8801XXXXXXXXX` before OTP/session/profile operations.
 
-`OTP পাঠানোর জন্য এই ফরম্যাট টি ফলো করুন (<BrandName> OTP is XXXXXX)`
+It sends OTP using this template:
+
+`<BrandName> OTP is XXXXXX. Don't share it with anyone.`
 
 ## Deploy to Vercel
 

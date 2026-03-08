@@ -6,7 +6,7 @@ const brandName = process.env.OTP_BRAND_NAME ?? 'DJMC35';
 export const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 export const otpMessageTemplate = (code: string) =>
-  `OTP পাঠানোর জন্য এই ফরম্যাট টি ফলো করুন (${brandName} OTP is ${code})`;
+  `${brandName} OTP is ${code}. Don't share it with anyone.`;
 
 export const sendOtpSms = async (phone: string, code: string) => {
   if (!otpApiBase || !otpApiKey || !otpSenderId) {

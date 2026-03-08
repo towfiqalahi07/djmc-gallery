@@ -1,9 +1,27 @@
 import { z } from 'zod';
 
+const BANGLADESH_CANONICAL_PHONE_REGEX = /^8801[3-9]\d{8}$/;
+
+export const normalizeBangladeshPhone = (rawPhone: string) => {
+  const cleaned = rawPhone.trim().replace(/[\s-]/g, '');
+
+  if (/^01[3-9]\d{8}$/.test(cleaned)) {
+    return `88${cleaned}`;
+  }
+
+  if (/^\+8801[3-9]\d{8}$/.test(cleaned)) {
+    return cleaned.slice(1);
+  }
+
+  return cleaned;
+};
+
 export const phoneSchema = z
   .string()
-  .trim()
-  .regex(/^8801[3-9]\d{8}$/, 'Phone must be in 8801XXXXXXXXX format');
+  .transform(normalizeBangladeshPhone)
+  .refine((value) => BANGLADESH_CANONICAL_PHONE_REGEX.test(value), {
+    message: 'Phone must be 01XXXXXXXXX or 8801XXXXXXXXX format'
+  });
 
 export const otpSchema = z.string().trim().regex(/^\d{4,6}$/, 'OTP must be 4-6 digits');
 

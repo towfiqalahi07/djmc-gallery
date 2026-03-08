@@ -110,7 +110,7 @@ export default function AddProfilePage() {
         <h3>Step 1: OTP Verification</h3>
         <div className="form">
           <input
-            placeholder="Phone (8801XXXXXXXXX)"
+            placeholder="Phone (01XXXXXXXXX)"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
           />
@@ -145,7 +145,7 @@ export default function AddProfilePage() {
           <button type="submit" disabled={pending || !verified}>
             Submit for Approval
           </button>
-          <p className="muted">One phone number can upload one profile maximum. Max image size: 1MB.</p>
+          <p className="muted">One phone number can upload one profile maximum. Enter as 01XXXXXXXXX; backend auto-converts to 8801XXXXXXXXX. Max image size: 1MB.</p>
           {status && <p className={status.toLowerCase().includes('success') ? 'success' : 'error'}>{status}</p>}
         </form>
       </section>
