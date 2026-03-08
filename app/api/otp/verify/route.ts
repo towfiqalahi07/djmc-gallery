@@ -16,8 +16,21 @@ export async function POST(request: Request) {
       .eq('phone', phone)
       .maybeSingle();
 
-    if (sessionError || !session) {
-      return NextResponse.json({ ok: false, message: 'OTP session not found.' }, { status: 404 });
+    if (sessionError) {
+      return NextResponse.json(
+        { ok: false, message: `Could not verify OTP session: ${sessionError.message}` },
+        { status: 500 }
+      );
+    }
+
+    if (!session) {
+      return NextResponse.json(
+        {
+          ok: false,
+          message: 'OTP session not found. Please request OTP again and verify within 5 minutes.'
+        },
+        { status: 404 }
+      );
     }
 
     if (new Date(session.expires_at).getTime() < Date.now()) {
@@ -33,7 +46,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, message: 'Invalid OTP.' }, { status: 400 });
     }
 
-    await supabase.from('otp_sessions').update({ verified: true }).eq('phone', phone);
+    const { error: verifyError } = await supabase.from('otp_sessions').update({ verified: true }).eq('phone', phone);
+
+    if (verifyError) {
+      return NextResponse.json(
+        { ok: false, message: `Failed to mark phone as verified: ${verifyError.message}` },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ ok: true, message: 'Phone verified successfully.' });
   } catch (error) {

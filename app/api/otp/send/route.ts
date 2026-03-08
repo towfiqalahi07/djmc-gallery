@@ -24,9 +24,8 @@ export async function POST(request: Request) {
     const otp = generateOtp();
     const expiresAt = new Date(Date.now() + OTP_TTL_MINUTES * 60 * 1000).toISOString();
 
-    await sendOtpSms(phone, otp);
-
-    const { error } = await supabase.from('otp_sessions').upsert(
+    // Save OTP session first so verify endpoint can always find it after successful send response.
+    const { error: upsertError } = await supabase.from('otp_sessions').upsert(
       {
         phone,
         otp_code: otp,
@@ -37,8 +36,23 @@ export async function POST(request: Request) {
       { onConflict: 'phone' }
     );
 
-    if (error) {
-      return NextResponse.json({ ok: false, message: error.message }, { status: 500 });
+    if (upsertError) {
+      return NextResponse.json(
+        { ok: false, message: `Failed to create OTP session: ${upsertError.message}` },
+        { status: 500 }
+      );
+    }
+
+    try {
+      await sendOtpSms(phone, otp);
+    } catch (smsError) {
+      // Cleanup session when SMS send fails to avoid stale/unknown OTP state.
+      await supabase.from('otp_sessions').delete().eq('phone', phone);
+
+      return NextResponse.json(
+        { ok: false, message: smsError instanceof Error ? smsError.message : 'Failed to send OTP SMS.' },
+        { status: 502 }
+      );
     }
 
     return NextResponse.json({ ok: true, message: 'OTP sent successfully.' });
